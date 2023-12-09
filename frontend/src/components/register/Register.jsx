@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios'
+import { useToast } from '@chakra-ui/react'
+import {useNavigate} from 'react-router-dom'
+
 import {
   VStack,
   FormControl,
@@ -10,6 +14,9 @@ import {
 } from '@chakra-ui/react';
 
 const Register = () => {
+  const navigate=useNavigate()
+  const toast=useToast();
+  const [data,setData]=useState({});
   const [show, setShow] = useState(false);
   const [show1, setShow1] = useState(false);
   const [user, setUser] = useState({
@@ -19,6 +26,28 @@ const Register = () => {
     confirmPassword: '',
   });
 
+  const getApi = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/user');
+      setData(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      console.error(error)
+    }
+  };
+
+  useEffect(() => {
+    getApi();
+  }, []); // 
+  console.log(data)
+
+
+
+
+
+
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser({
@@ -27,10 +56,67 @@ const Register = () => {
     });
   };
 
-  const submitHandler = () => {
-    // Access user properties here for form submission
-    console.log('User:', user);
-    // Add your form submission logic here
+  const submitHandler = async (e) => {
+    e.preventDefault();
+  
+    if (user.password !== user.confirmPassword) {
+      toast({
+        title: 'Password does not match',
+        description: 'Password and Confirm Password should be the same',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return; // Prevent further execution if passwords don't match
+    }
+  
+    try {
+      const response = await axios.post('http://localhost:8080/user/register', {
+        firstname: user.firstname,
+        email: user.email,
+        password: user.password,
+      });
+  
+      if (response.status === 201) {
+        // User registration successful
+        toast({
+          title: 'User Registration Successfully',
+          description: 'Thank You for registering',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        setUser({
+          firstname: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        });
+          // Store user ID in local storage
+          localStorage.setItem('userID',response.data.user._id);
+       navigate('/homepage')
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        // User with the same email already exists
+        toast({
+          title: 'User Already Exists',
+          description: 'User with this email already exists. Please login.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        // Other errors
+        toast({
+          title: 'Error',
+          description: 'Registration failed. Please try again later.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    }
   };
 
   const handleClick = () => {
@@ -104,6 +190,7 @@ const Register = () => {
       >
         Sign up
       </Button>
+    
     </VStack>
   );
 };

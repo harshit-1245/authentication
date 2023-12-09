@@ -1,4 +1,8 @@
 import React, { useState } from 'react'
+import axios from 'axios'
+import {useNavigate} from 'react-router-dom'
+import { useToast } from '@chakra-ui/react'
+import {useCookies} from 'react-cookie'
 import {
   VStack,
   FormControl,
@@ -10,7 +14,10 @@ import {
 } from '@chakra-ui/react';
 
 const Login = () => {
+  const toast=useToast();
+  const navigate=useNavigate();
   const [show, setShow] = useState(false);
+  const [_,setCookies]=useCookies(["access_token"])
 
   const [user,setUser]=useState({
     email:'',
@@ -31,13 +38,55 @@ const Login = () => {
   };
 
 
-  const submitHandler=()=>{
-
-  }
+  const submitHandler = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const response = await axios.post('http://localhost:8080/user/login', {
+        email: user.email,
+        password: user.password,
+      });
+  
+      if (response.status === 200) {
+        // Login was successful
+        toast({
+          title: 'Login Successful',
+          description: 'Welcome back!',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+  
+      setCookies("access_token",response.data.token);
+      window.localStorage.setItem("userID",response.data.user._id);
+        navigate('/homepage');
+      } 
+    } catch (error) {
+      // Handle error cases, such as network errors or invalid credentials
+      if (error.response) {
+        toast({
+          title: 'Login Failed',
+          description: 'Invalid credentials. Please try again.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        // Handle other errors (network issues, server down, etc.)
+        toast({
+          title: 'Login Failed',
+          description: 'An error occurred. Please try again later.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    }
+  };
   return (
     <VStack spacing='5px'>
     
-    <FormControl id='email' isRequired>
+    <FormControl id='email-login' isRequired>
       <FormLabel>Email</FormLabel>
       <Input
         placeholder='Enter Your Email'
@@ -46,7 +95,7 @@ const Login = () => {
         onChange={handleChange}
       />
     </FormControl>
-    <FormControl id='password' isRequired>
+    <FormControl id='password-login' isRequired>
       <FormLabel>Password</FormLabel>
       <InputGroup>
         <Input
@@ -78,3 +127,11 @@ const Login = () => {
 }
 
 export default Login
+
+// toast({
+//   title: 'Account created.',
+//   description: "We've created your account for you.",
+//   status: 'success',
+//   duration: 9000,
+//   isClosable: true,
+// })
