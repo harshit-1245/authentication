@@ -94,7 +94,7 @@ const Register = () => {
         });
           // Store user ID in local storage
           localStorage.setItem('userID',response.data.user._id);
-       navigate('/homepage')
+       
       }
     } catch (error) {
       if (error.response && error.response.status === 409) {
