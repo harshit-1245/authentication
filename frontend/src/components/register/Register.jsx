@@ -39,7 +39,7 @@ const Register = () => {
   useEffect(() => {
     getApi();
   }, []); // 
-  console.log(data)
+ 
 
 
 
@@ -107,7 +107,7 @@ const Register = () => {
           isClosable: true,
         });
       } else {
-        // Other errors
+        console.log(error)
         toast({
           title: 'Error',
           description: 'Registration failed. Please try again later.',

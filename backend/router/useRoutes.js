@@ -1,5 +1,5 @@
 const express=require('express')
-const {getUser,createUser,loginUser, logOut}=require('../controllers/userControllers');
+const {getUser,createUser,loginUser,}=require('../controllers/userControllers');
 // const isAuthenticated = require( '../middleware/isAuthenticated' );
 
 const router=express.Router();
