@@ -14,73 +14,72 @@ import {
 } from '@chakra-ui/react';
 
 const Login = () => {
-  const toast=useToast();
-  const navigate=useNavigate();
+  const toast = useToast();
+  const navigate = useNavigate();
   const [show, setShow] = useState(false);
-  const [_,setCookies]=useCookies(["access_token"])
+  const [_, setCookies] = useCookies(["access_token"]);
+  const [loading, setLoading] = useState(false); // Add loading state
 
-  const [user,setUser]=useState({
-    email:'',
-    password:''
-  })
+  const [user, setUser] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleChange=(e)=>{
-    const {name,value}=e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setUser({
       ...user,
-      [name]:value,
-    })
-  }
-
+      [name]: value,
+    });
+  };
 
   const handleClick = () => {
     setShow(!show);
   };
 
-
   const submitHandler = async (e) => {
     e.preventDefault();
-  
+    setLoading(true); // Set loading to true during the API request
+
     try {
-      const response = await axios.post('http://localhost:8080/user/login', {
+      const response = await axios.post("http://localhost:8080/user/login", {
         email: user.email,
         password: user.password,
       });
-  
+
       if (response.status === 200) {
-        // Login was successful
         toast({
-          title: 'Login Successful',
-          description: 'Welcome back!',
-          status: 'success',
+          title: "Login Successful",
+          description: "Welcome back!",
+          status: "success",
           duration: 3000,
           isClosable: true,
         });
-  
-      setCookies("access_token",response.data.token);
-      window.localStorage.setItem("userID",response.data.user._id);
-        navigate('/homepage');
-      } 
+
+        setCookies("access_token", response.data.token);
+        window.localStorage.setItem("userID", response.data.user._id);
+        navigate("/homepage");
+      }
     } catch (error) {
-      // Handle error cases, such as network errors or invalid credentials
       if (error.response) {
         toast({
-          title: 'Login Failed',
-          description: 'Invalid credentials. Please try again.',
-          status: 'error',
+          title: "Login Failed",
+          description: "Invalid credentials. Please try again.",
+          status: "error",
           duration: 3000,
           isClosable: true,
         });
       } else {
-        // Handle other errors (network issues, server down, etc.)
         toast({
-          title: 'Login Failed',
-          description: 'An error occurred. Please try again later.',
-          status: 'error',
+          title: "Login Failed",
+          description: "An error occurred. Please try again later.",
+          status: "error",
           duration: 3000,
           isClosable: true,
         });
       }
+    } finally {
+      setLoading(false); // Set loading back to false after API request
     }
   };
   return (

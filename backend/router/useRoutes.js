@@ -1,14 +1,15 @@
 const express=require('express')
-const {getUser,createUser,loginUser,}=require('../controllers/userControllers');
-// const isAuthenticated = require( '../middleware/isAuthenticated' );
+const {getUser,createUser,logInUser,logOut}=require('../controllers/userControllers');
+const verifyJwt = require( '../middleware/isAuthenticated' );
+
 
 const router=express.Router();
 
 router.route('/').get(getUser)
 
 router.route('/register').post(createUser)
-router.route('/login').post(loginUser)
-// router.route('/logout').post(isAuthenticated,logOut)
+router.route('/login').post(logInUser)
+router.route('/logout').post(verifyJwt,logOut)
 
 
 module.exports=router;

@@ -92,8 +92,6 @@ const Register = () => {
           password: '',
           confirmPassword: '',
         });
-          // Store user ID in local storage
-          localStorage.setItem('userID',response.data.user._id);
        
       }
     } catch (error) {
